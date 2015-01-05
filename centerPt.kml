@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+<Document><name>No data</name>
+<description>No geometries found with multiple points</description>
+<gx:balloonVisibility>1</gx:balloonVisibility>
+<Placemark><name>Error</name>
+<description>javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,22713]
+Message: Content is not allowed in trailing section.</description>
+</Placemark>
+</Document></kml>
