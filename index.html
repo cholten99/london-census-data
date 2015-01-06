@@ -1,24 +1,100 @@
 <html>
   <head>
-    <title>London census data by borough between 1801 to 2011</title>
+    <title>London population density by borough between 1801 to 2011</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+
+    <style>
+      #map-canvas {
+        width: 800px;
+        height: 550px;
+        background-color: #CCC;
+      }
+    </style>
+
+    <script>
+    $(function() {
+
+      // Slider
+      $( "#slider" ).slider({
+        value:1901,
+        min: 1801,
+        max: 2011,
+        step: 10,
+        slide: function( event, ui ) {
+          $("#year_text").html(ui.value);
+        }
+      });
+      $("#year_text").html("1901");
+
+      // Slider increment
+      function slider_increment() {
+        var value = $("#slider").slider( "option", "value" );
+        if (value != 2011) {
+          $("#slider").slider( "option", "value", value + 10);
+          $("#year_text").html(value + 10);
+          setTimeout(slider_increment, 1000);
+        }
+      }
+
+      // Button    
+      $("#autoplay").click(function() {
+        $("#year_text").html("1801");
+        $("#slider").slider( "option", "value", 1801 );
+        slider_increment();
+      });
+
+      // Map stuff
+      function initialize() {
+        var mapCanvas = document.getElementById('map-canvas');
+        var mapOptions = {
+          center: new google.maps.LatLng(51.49, -0.13),
+          zoom: 10,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        var map = new google.maps.Map(mapCanvas, mapOptions)
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+
+    });
+    </script>
 
   </head>
   <body>
-  <h2>London census data by borough between 1801 and 2011</h2>
+    <h2>London population density by borough between 1801 and 2011</h2>
 
-  Prompted by <a href="https://twitter.com/resi_analyst/status/552155389777960962">this twitter post</a> by <a href="https://twitter.com/resi_analyst">@resi_analyst</a>
+    Prompted by <a href="https://twitter.com/resi_analyst/status/552155389777960962">this twitter post</a> by <a href="https://twitter.com/resi_analyst">@resi_analyst</a>.
+    Census data from <a href="https://t.co/LJ9mNkK9lW">London Data Store</a>. Borough boundaries <a href="http://goo.gl/8fpc4y">from here</a>.
+    <p/>
+    <div id="map-canvas"></div>
 
-<ul>
-<li>http://www.patrick-wied.at/static/heatmapjs/
-<li>Autoplay button
-<li>http://jqueryui.com/slider/#steps - see Snap to increments
-<li>https://code.google.com/p/jquery-csv/
-<li>https://t.co/LJ9mNkK9lW
-<li>http://goo.gl/8fpc4y
-<li>http://goo.gl/LUFtrp
-<li>http://goo.gl/ohRUs
-<li>http://kml4earth.appspot.com/centerPoint.html
-</ul>
+    <p>
+      <label for="amount">Year (10 year increments):</label>
+      <span id="year_text"/>
+    </p>
+
+    <div style="width:40%; height:30px;">
+      <div style="width:70%; float:left;"><div id="slider"></div></div>
+      <div style="width:28%; float:right;"><button id="autoplay">Autoplay</button></div>
+    </div>
+
+    <p/><hr/><p/>
+
+    <b>TBD:</b>
+    <ul>
+      <li>https://code.google.com/p/jquery-csv/ - Loading data
+      <li>http://goo.gl/kRjSB - KML into google maps
+      <li>http://goo.gl/LUFtrp - Red / green range
+    </ul>
+
+    <p/>
+    <b>Done:</b>
+    <ul>
+      <li>http://jqueryui.com/slider/#steps
+      <li>Autoplay button
+    </ul>
 
   </body>
 </html>
