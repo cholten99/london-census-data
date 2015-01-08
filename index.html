@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="http://bowsy.co.uk/london-census-data/jquery-csv.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js"></script>
 
     <style>
@@ -46,6 +47,13 @@
         slider_increment();
       });
 
+      // Load census data
+      var census_data;
+      $.get("https://londondatastore-upload.s3.amazonaws.com/census-historic-population-borough.csv", function( data ) {
+        census_data = $.csv.toArrays(data);
+        console.log(census_data);
+});
+
       // Map initialisation
       function initialize() {
         var mapCanvas = document.getElementById('map-canvas');
@@ -56,37 +64,42 @@
         }
         var map = new google.maps.Map(mapCanvas, mapOptions)
 
-        // Borough KMLs onto map
-        layer = new google.maps.FusionTablesLayer({
-          query: {
-            select: 'geometry',
-            from: '1WlXk5RnE3oVRtrsqnm48V75pfN66Do0nbIw2xX8'
-          },
-          styles: [{
-            polygonOptions: {
-              fillColor: '#' + ((1<<24)*Math.random()|0).toString(16),
-              fillOpacity: 0.3
-           }
-          }]
-        });
-        layer.setMap(map);
+        drawBoroughs(map);
       };
-      google.maps.event.addDomListener(window, 'load', initialize); 
+      google.maps.event.addDomListener(window, 'load', initialize);
 
+      // Draw all the boroughs
+      function drawBoroughs(map) {
+        var fusionTableId = "1WlXk5RnE3oVRtrsqnm48V75pfN66Do0nbIw2xX8";
+        var googleApiKey =  "AIzaSyABknzj5RZL8YIjpZVSztvs4w61cA_o4XA";
 
+        for (rowId=2; rowId < 35; rowId++) {
+          sql = "SELECT * FROM " + fusionTableId + " WHERE ROWID=" + rowId;
 
-// replace with your table ID
-   var fusionTableId = "1WlXk5RnE3oVRtrsqnm48V75pfN66Do0nbIw2xX8";
-   var googleApiKey =  "AIzaSyABknzj5RZL8YIjpZVSztvs4w61cA_o4XA";
-   var sql = "SELECT * FROM " + fusionTableId;
-   $.ajax({
-      url: "https://www.googleapis.com/fusiontables/v1/query?sql=" + sql + "&key=" + googleApiKey,
-      dataType: "json"
-   }).done(function (response) {
-      console.log(response);
-   });
+          $.ajax({
+            url: "https://www.googleapis.com/fusiontables/v1/query?sql=" + sql + "&key=" + googleApiKey,
+            dataType: "json"
+          }).done(function (response) {
+            drawBorough(map, response.rows[0][2].geometry.coordinates);
+          });
 
+        }
+      }
 
+      // Draw a borough's KML
+      function drawBorough(map, geometry) {
+/*
+        console.log(geometry);
+
+        // Construct polygon
+        poly = new google.maps.Polygon({
+          paths: geometry,
+          fillColor: '#' + ((1<<24)*Math.random()|0).toString(16),
+          fillOpacity: 0.35
+        });
+        poly.setMap(map);
+*/
+      };
 
     });   
     </script>
