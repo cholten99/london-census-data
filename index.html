@@ -7,17 +7,30 @@
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
     <script src="http://bowsy.co.uk/london-census-data/jquery-csv.js"></script>
+    <script src="http://bowsy.co.uk/london-census-data/rainbowvis.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
     <script>
     $(function() {
+      // The value of the "value" variable in the slider is broken so need to drive global var from the UI event (ugh!)
+      var slider_value;
+
+      // Stores the "KML" data
+      var borough_maps_data;
+
+      // For access to the census data
       var fusionTableId = "1WlXk5RnE3oVRtrsqnm48V75pfN66Do0nbIw2xX8";
       var googleApiKey =  "AIzaSyABknzj5RZL8YIjpZVSztvs4w61cA_o4XA";
-      var census_data =[];
+      var census_data = [];
       var borough_maps_data;
       // The value of the "value" variable in the slider is broken so need to drive global var from the UI event (ugh!)
       var slider_value;
+
+      // Set up colours
+      var rainbow = new Rainbow();
+      rainbow.setSpectrum('green', 'yellow', 'red');
+      rainbow.setNumberRange(0, 600000);
 
       // Slider
       $( "#slider" ).slider({
@@ -53,8 +66,10 @@
 
       function updateDataText() {
         var new_html = "";
-        for (i=1; i<census_data.length; i++) {
-          new_html = new_html + census_data[i][1] + " : " + census_data[i][slider_value + 2] + "<br/>";
+        for (i=1; i<census_data.length - 3; i++) {
+          value = census_data[i][slider_value + 2];
+hex = '#' + rainbow.colourAt(value);
+new_html = new_html + "<span style='color:" + hex + "'>"  + census_data[i][1] + " : " + value + "</span><br/>";
         }
         $("#right-side").html(new_html);
       }
@@ -137,8 +152,23 @@ console.log(response);
       <h2>London population density by borough between 1801 and 2011</h2>
 
       Prompted by <a href="https://twitter.com/resi_analyst/status/552155389777960962">this twitter post</a> by <a href="https://twitter.com/resi_analyst">@resi_analyst</a>.
-      Census data from <a href="https://t.co/LJ9mNkK9lW">London Data Store</a>. Borough boundaries <a href="http://goo.gl/8fpc4y">from here</a>.
+      Census data from <a href="https://t.co/LJ9mNkK9lW">London Data Store</a>. Borough boundaries <a href="http://goo.gl/8fpc4y">from here</a>. CSV handling <a href="http://goo.gl/77o5pj">from here</a>. Colours <a href="http://goo.gl/r2ZE46">from here</a>.
       <p/>
+
+      <div id="slider-box">
+        <div class="row">
+          <div class="col-md-2">
+            <label for="amount">Year (10 year increments):</label>
+            <span id="year_text"/>
+          </div>
+          <div class="col-md-5">
+            <div id="slider"></div>
+          </div>
+          <div class="col-md-2">
+            <button id="autoplay">Autoplay</button>
+          </div>
+        </div>
+      </div>
 
       <div id="top-box">
         <div class="row">
@@ -150,20 +180,7 @@ console.log(response);
         </div>
       </div>
 
-      <p/>
-        <label for="amount">Year (10 year increments):</label>
-        <span id="year_text"/>
-      </p>
-
-      <div class="row">
-        <div class="col-md-5">
-          <div id="slider"></div>        
-        </div>
-        <div class="col-md-2">
-          <button id="autoplay">Autoplay</button>
-        </div>
     </div>
-  </div>
 
   </body>
 </html>

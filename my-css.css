@@ -3,12 +3,20 @@
   margin-bottom: 50px;
 }
 
+#slider-box {
+  margin-bottom: 10px;
+}
+
 #map-canvas {
   width: 800px;
-  height: 700px;
+  height: 650px;
   background-color: #CCC;
 }
 
 #top-box {
   padding-bottom: 20px;
+}
+
+.ui-slider {
+  margin-top: 4px;
 }
