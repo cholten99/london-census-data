@@ -9,6 +9,7 @@
     <script src="http://bowsy.co.uk/london-census-data/jquery-csv.js"></script>
     <script src="http://bowsy.co.uk/london-census-data/rainbowvis.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js"></script>
+    <script src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerwithlabel/1.1.5/src/markerwithlabel_packed.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
     <script>
@@ -18,6 +19,9 @@
 
       // The map object
       var map;
+
+      // The set of map later objects
+      var map_polygons = [];
 
       // Stores the "KML" data
       var borough_maps_data;
@@ -117,6 +121,13 @@
       
       // Draw all the boroughs
       function drawBoroughs() {
+        // Clear out any existing ones
+        for (j=0; j < map_polygons.length; j++) {
+          poly_object = map_polygons.pop();
+          poly_object.setMap(null);
+          // Object should be garbage collected
+        }
+
         var borough_name = "";
         var geometry = [];
         for (loop=0; loop < borough_maps_data.rows.length; loop++) {
@@ -148,9 +159,6 @@
           }
         }
 
-Put all instances of "poly" variable into a global array
-When drawBoroughs() is called need to call .setMap(null) on each one
-
         // Construct polygon
         poly = new google.maps.Polygon({
           paths: geometry,
@@ -158,7 +166,35 @@ When drawBoroughs() is called need to call .setMap(null) on each one
           fillOpacity: 0.35,
           strokeWeight: 1
         });
+        map_polygons.push(poly);
         poly.setMap(map);
+
+        // Add mouse-over tooltip for borough names
+        var marker = new MarkerWithLabel({
+          position: new google.maps.LatLng(0,0),
+          draggable: false,
+          raiseOnDrag: false,
+          map: map,
+          labelContent: borough_name,
+          labelAnchor: new google.maps.Point(30, 20),
+          labelClass: "map_tooltip", // the CSS class for the label
+          labelStyle: {opacity: 1.0},
+          icon: "http://placehold.it/1x1",
+          visible: false
+        });
+
+        google.maps.event.addListener(poly, "mousemove", function(event) {
+          $("#hidden_div").html(marker.labelContent);
+          width = $("#hidden_div").width();
+          $(".map_tooltip").css("width", width + 10);
+          marker.setPosition(event.latLng);
+          marker.setVisible(true);
+        });
+
+        google.maps.event.addListener(poly, "mouseout", function(event) {
+          marker.setVisible(false);
+        });
+
       };
 
     }); 
@@ -170,7 +206,7 @@ When drawBoroughs() is called need to call .setMap(null) on each one
       <h2>London population density by borough between 1801 and 2011</h2>
 
       Prompted by <a href="https://twitter.com/resi_analyst/status/552155389777960962">this twitter post</a> by <a href="https://twitter.com/resi_analyst">@resi_analyst</a>.
-      Census data from <a href="https://t.co/LJ9mNkK9lW">London Data Store</a>. Borough boundaries <a href="http://goo.gl/8fpc4y">from here</a>. CSV handling <a href="http://goo.gl/77o5pj">from here</a>. Colours <a href="http://goo.gl/r2ZE46">from here</a>.
+      Census data from <a href="https://t.co/LJ9mNkK9lW">London Data Store</a>. Borough boundaries <a href="http://goo.gl/8fpc4y">from here</a>. CSV handling <a href="http://goo.gl/77o5pj">from here</a>. Colours <a href="http://goo.gl/r2ZE46">from here</a>. Map tooltips from <a href="http://goo.gl/BPcbO6">here</a> and <a href="http://goo.gl/CVzFF8">here</a>.
       <p/>
 
       <div id="slider-box">
@@ -199,6 +235,9 @@ When drawBoroughs() is called need to call .setMap(null) on each one
       </div>
 
     </div>
+
+    <!-- Hidden div used to find with of text in the map tooltips -->
+    <span id="hidden_div" style="visibility: hidden;"></span>
 
   </body>
 </html>
