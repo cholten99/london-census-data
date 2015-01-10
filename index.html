@@ -77,8 +77,9 @@
         var new_html = "";
         for (i=1; i<census_data.length - 3; i++) {
           value = census_data[i][slider_value + 2];
-          hex = '#' + rainbow.colourAt(value);
-          new_html = new_html + "<span style='color:" + hex + "'>"  + census_data[i][1] + " : " + value + "</span><br/>";
+//          hex = '#' + rainbow.colourAt(value);
+//          new_html = new_html + "<span style='color:" + hex + "'>"  + census_data[i][1] + " : " + value + "</span><br/>";
+          new_html = new_html + census_data[i][1] + " : " + value + "<br/>";
         }
         $("#right-side").html(new_html);
       }
